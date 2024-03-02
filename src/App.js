@@ -40,7 +40,12 @@ function App() {
     setWins(0);
     setPlayerOneScore(0);
     setPlayerTwoScore(0);
-    setCurrentTurn(Turn.PLAYER_ONE);
+    if (playerOneScore >= playerTwoScore) {
+      setCurrentTurn(Turn.PLAYER_ONE);
+    } else {
+      setCurrentTurn(Turn.PLAYER_TWO);
+    }
+    
     handleTurn();
     setCards(shuffle);
   };
@@ -53,9 +58,9 @@ function App() {
       //check if match
       if (pickOne.image === pickTwo.image) {
         if(currentTurn === Turn.PLAYER_ONE) {
-          setPlayerOneScore(playerOneScore + 1);
+          setPlayerOneScore(playerOneScore + 2);
         } else {
-          setPlayerTwoScore(playerTwoScore + 1);
+          setPlayerTwoScore(playerTwoScore + 2);
         }
 
         setCards((prevCards) => {
@@ -92,9 +97,9 @@ function App() {
     if (cards.length && checkWin.length < 1) {
       console.log("You win!");
       if ( playerOneScore !== playerTwoScore) {
-        setWinMessage(`Congrats you win ${ playerOneScore > playerTwoScore ? 'Player One!': ' Player Two!'}!`);
+        setWinMessage(`Congrats you win ${ playerOneScore > playerTwoScore ? `Player One! ${ playerOneScore } to ${playerTwoScore}`: ` Player Two!  ${ playerTwoScore } to ${playerOneScore}`}!`);
       } else {
-        setWinMessage(`It's a Tie!`)
+        setWinMessage(`It's a Tie! ${ playerOneScore } to ${playerTwoScore}`)
       }
 
       setTimeout(() => {

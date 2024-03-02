@@ -8,6 +8,7 @@ npm run start
 
 ### Tips
 Toggle mobile device with `Ctrl+Shift+M` in dev tools in chrome
+If you're having firebase issues with deploying check version and try logging out and in again
 
 ## Build and deploy
 npm run build
