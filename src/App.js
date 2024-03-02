@@ -1,15 +1,24 @@
 import React, { useState, useEffect } from "react";
 import Card from "./components/Card";
 import Header from "./components/Header";
+import ScoreBoard from "./components/ScoreBoard";
 import "./App.css";
 import shuffle from "./utilities/shuffle";
 import useAppBadge from "./hooks/useAppBadge";
 function App() {
+  const Turn = Object.freeze({
+    PLAYER_ONE: 1,
+    PLAYER_TWO: 2,
+  });
+  
   const [cards, setCards] = useState(shuffle); // Cards array from assets
   const [pickOne, setPickOne] = useState(null);
   const [pickTwo, setPickTwo] = useState(null);
   const [disabled, setDisabled] = useState(false); // Delay handler
   const [wins, setWins] = useState(0);
+  const [currentTurn, setCurrentTurn] = useState(Turn.PLAYER_ONE)
+  const [playerOneScore, setPlayerOneScore] = useState(0);
+  const [playerTwoScore, setPlayerTwoScore] = useState(0);
   const [setBadge, clearBadge] = useAppBadge();
   const [winMessage, setWinMessage] = useState("");
 
@@ -29,6 +38,9 @@ function App() {
   const handleNewGame = () => {
     clearBadge();
     setWins(0);
+    setPlayerOneScore(0);
+    setPlayerTwoScore(0);
+    setCurrentTurn(Turn.PLAYER_ONE);
     handleTurn();
     setCards(shuffle);
   };
@@ -40,6 +52,12 @@ function App() {
     if (pickOne && pickTwo) {
       //check if match
       if (pickOne.image === pickTwo.image) {
+        if(currentTurn === Turn.PLAYER_ONE) {
+          setPlayerOneScore(playerOneScore + 1);
+        } else {
+          setPlayerTwoScore(playerTwoScore + 1);
+        }
+
         setCards((prevCards) => {
           return prevCards.map((card) => {
             if (card.image === pickOne.image) {
@@ -51,6 +69,11 @@ function App() {
         });
         handleTurn();
       } else {
+        if(currentTurn === Turn.PLAYER_ONE) {
+          setCurrentTurn(Turn.PLAYER_TWO);
+        } else {
+          setCurrentTurn(Turn.PLAYER_ONE);
+        }
         setDisabled(true);
         pickTimer = setTimeout(() => {
           handleTurn();
@@ -68,22 +91,30 @@ function App() {
     const checkWin = cards.filter((card) => !card.matched);
     if (cards.length && checkWin.length < 1) {
       console.log("You win!");
+      if ( playerOneScore !== playerTwoScore) {
+        setWinMessage(`Congrats you win ${ playerOneScore > playerTwoScore ? 'Player One!': ' Player Two!'}!`);
+      } else {
+        setWinMessage(`It's a Tie!`)
+      }
 
-      setWinMessage("Congrats you win Celeste!");
       setTimeout(() => {
         setWins(wins + 1);
+        setPlayerOneScore(0);
+        setPlayerTwoScore(0);
+        setCurrentTurn(Turn.PLAYER_ONE);
         setWinMessage("");
         handleTurn();
         setBadge();
         setCards(shuffle);
-      }, 2000);
+      }, 3000);
     }
   }, [cards, wins, setBadge]);
 
   return (
     <>
       <Header handleNewGame={handleNewGame} wins={wins} />
-      {winMessage && <h4> {winMessage}</h4>}
+      <ScoreBoard currentTurn={currentTurn} playerOneScore={playerOneScore} playerTwoScore={playerTwoScore} />
+      {winMessage && <header className="header"> <h4> {winMessage}</h4> </header>}
       <div className="grid">
         {cards.map((card) => {
           const { image, id, matched } = card;
